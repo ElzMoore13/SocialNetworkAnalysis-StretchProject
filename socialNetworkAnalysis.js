@@ -46,6 +46,12 @@ var networkDatabase = {
 
   getUserNumberFollowers: getUserNumberFollowers,
 
+  getUserNumTheyFollow: getUserNumTheyFollow,
+
+  whoFollowsMost: whoFollowsMost,
+
+  unrequitedFollowers: unrequitedFollowers,
+
 
 
 };
@@ -60,12 +66,14 @@ function printUser(userKey){
     console.log('User ' + userKey + ' -> Name: ' + spot['name'] + ', age:' + spot['age'] + ', follows: ' + theyFollow + ', followers: ' + followers);
 };
 
+//function to print all users in database:
 function printAllUsers(){
   for(user in this['data']){
     this.printUser(user);
   }
 }
 
+//function to get all of a given users followers
 function getWhoUserFollows(userKey){
   var spot = this['data'][userKey];
   var theyFollow = [];
@@ -75,6 +83,15 @@ function getWhoUserFollows(userKey){
   return theyFollow.join(', ');
 };
 
+//function to get number of how many users a given user follows
+function getUserNumTheyFollow(userKey){
+
+  var follows = this.getWhoUserFollows(userKey);
+  follows = follows.split(', ');
+  return follows.length;
+}
+
+//function to get all followers for a given user
 function getUserFollowers(userKey){
   var followers = [];
   for(user in this['data']){
@@ -88,6 +105,7 @@ function getUserFollowers(userKey){
   return followers.join(', ');
 };
 
+//function to get the number of people who follow a given user
 function getUserNumberFollowers(userKey){
 
   var followers = this.getUserFollowers(userKey);
@@ -95,6 +113,7 @@ function getUserNumberFollowers(userKey){
   return followers.length;
 };
 
+//function to get the user who has the most followers
 function whoHasMostFollowers(){
   var mostFollowers = 0;
   var userKey = '';
@@ -109,18 +128,76 @@ function whoHasMostFollowers(){
   this.printUser(userKey);
 }
 
+//function to get the user who follows the most people
+function whoFollowsMost(){
+  var follows = 0;
+  var userKey = '';
+  for(user in this['data']){
+    var theyFollow = this.getUserNumTheyFollow(user);
+    if (theyFollow > follows){
+      userKey = user;
+      follows = theyFollow;
+    }
+  }
+  console.log(userKey + ' follows the most users, with ' + follows);
+  this.printUser(userKey);
+}
+
+//function to get a list of users that follow someone who doesn't follow them back
+function unrequitedFollowers(){
+  var output = {};
+  for(var user in this['data']){
+    var theyFollow = this.getWhoUserFollows(user).split(', ');
+    var theirFollowers = this.getUserFollowers(user).split(', ');
+
+    for(follower in theirFollowers){
+      var currUser = theirFollowers[follower];
+      if(! theyFollow.includes(currUser)){
+        if (output[currUser] != undefined)
+          output[currUser].push(user);
+        else
+          output[currUser] = [user];
+      }
+    }
+  }
+
+  for(var key in output){
+    var printStatement = 'User: ' + key + " unrequitedly follows users: " + output[key];
+    console.log(printStatement);
+  }
+  return output;
+
+}
+
+
+
+
+//
+
 
 //test code
-networkDatabase.printAllUsers();
-networkDatabase.whoHasMostFollowers();
+// networkDatabase.printAllUsers();
+// networkDatabase.whoHasMostFollowers();
+//networkDatabase.whoFollowsMost('f04');
+networkDatabase.unrequitedFollowers();
 
 
-//Functions to Implement:
+//Main Functions Implemented:
 
 // List everyone and for each of them, list the names of who they follow and who follows them
 // Identify who follows the most people
 // Identify who has the most followers
-// Identify who has the most followers over 30
-// Identify who follows the most people over 30
 // List those who follow someone that doesn't follow them back
-// List everyone and their reach (sum of # of followers and # of followers of followers)
+
+
+
+//not yet implemented,,,,but maybe soon...
+  // List everyone and their reach (sum of # of followers and # of followers of followers)
+
+
+
+
+
+
+
+
